@@ -1,0 +1,12 @@
+Run with Hash Table
+ADD data
+Huy : u minh ca mau
+Run with Hash Table
+ EDIT DATA
+Huy : 
+ prev values: u minh ca mau
+ New values: u minh
+Run with array
+Search : 
+Sociology :  Don't see it
+Run with array

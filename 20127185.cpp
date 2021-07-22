@@ -1,15 +1,68 @@
 #include <iostream>
 #include <string>
+#include <ctime>
+#include <cstdlib>
 #include <sstream>
 #include <fstream>
 #include <windows.h>
 using namespace std;
 #define sizeTable 12000
+int random(int size)
+{
+    return rand() % (size - 0 + 0) + 0;
+}
 struct info
 {
     string keys;
     string values;
 };
+int sizeFileInput(fstream &fsInFile)
+{
+    int size = 0;
+    while (!fsInFile.eof())
+    {
+        string temp;
+        getline(fsInFile, temp);
+        if (temp.length() > 1)
+        {
+            size++;
+        }
+    }
+    return size;
+}
+void input(fstream &fsInFile)
+{
+    fstream fsTest("keys.txt", ios::in);
+    int size = sizeFileInput(fsTest);
+    fsTest.close();
+    if (size < 10)
+    {
+        int size = sizeFileInput(fsInFile);
+        fstream fs("keys.txt", ios::out);
+        fstream fs1("values.txt", ios::out);
+        while (!fsInFile.eof())
+        {
+            string line;
+            getline(fsInFile, line);
+            if (line.size() > 3)
+            {
+                string keys;
+                string values;
+                stringstream ss(line);
+                getline(ss, keys, ' ');
+                getline(ss, values, '\n');
+                fs << keys << endl;
+                fs1 << values << endl;
+            }
+        }
+
+        fs.clear();
+        fs1.clear();
+        fs.close();
+        fs1.close();
+    }
+}
+
 int binarySearch(info *arr, int l, int r, string x)
 {
     fstream fsTime("Time.txt", ios::out | ios::app);
@@ -522,49 +575,6 @@ struct Node
 
 typedef Node *Tree;
 
-int sizeFileInput(fstream &fsInFile)
-{
-    int size = 0;
-    while (!fsInFile.eof())
-    {
-        string temp;
-        getline(fsInFile, temp);
-        size++;
-    }
-    return size;
-}
-void input(fstream &fsInFile)
-{
-    fstream fsTest("keys.txt", ios::in);
-    int size = sizeFileInput(fsTest);
-    fsTest.close();
-    if (size < 10)
-    {
-        fstream fs("keys.txt", ios::out);
-        fstream fs1("values.txt", ios::out);
-
-        while (!fsInFile.eof())
-        {
-            string line;
-            getline(fsInFile, line);
-            if (line.size() > 3)
-            {
-                string keys;
-                string values;
-                stringstream ss(line);
-                getline(ss, keys, ' ');
-                getline(ss, values, '\n');
-                fs << keys << endl;
-                fs1 << values << endl;
-            }
-        }
-        fs.clear();
-        fs1.clear();
-        fs.close();
-        fs1.close();
-    }
-}
-
 Node *CreateNode(string keys, string value)
 {
     Node *p = new Node;
@@ -643,31 +653,6 @@ void saveDataTree(Tree root, fstream &fs1, fstream &fs2)
 
     saveDataTree(root->right, fs1, fs2);
 }
-// void NLR(Tree root)
-// {
-//     if (root)
-//     {
-//         NLR(root->left);
-//         NLR(root->right);
-//     }
-// }
-// void LNR(Tree root)
-// {
-//     if (root)
-//     {
-//         LNR(root->left);
-// LNR(root->right);
-//     }
-// }
-// void LRN(Tree root)
-// {
-//     if (root)
-//     {
-//         LRN(root->left);
-//         LRN(root->right);
-//     }
-// }
-
 void FindAndReplace(Tree &p, Tree &tree)
 {
     if (tree->left)
@@ -771,7 +756,7 @@ void processTree(Tree t, int seletc)
         else
         {
             cout << endl
-                 << " prev data : " << find->data.keys << find->data.values << endl;
+                 << " prev data : " << find->data.values << endl;
             string values;
             cout << "Enter new data ";
             cin.ignore();
@@ -783,10 +768,7 @@ void processTree(Tree t, int seletc)
 
 void selectionTree(Tree t)
 {
-    fstream fsTest("keys.txt", ios::in);
-    int size = sizeFileInput(fsTest);
-    info *arr = new info[size];
-    fsTest.close();
+
     fstream fsKeys("keys.txt", ios::in);
     fstream fsValue("values.txt", ios::in);
     int count = 0;
@@ -797,20 +779,11 @@ void selectionTree(Tree t)
         string values;
         getline(fsKeys, keys);
         getline(fsValue, values);
-        arr[count].keys = keys;
-        arr[count].values = values;
-        count++;
+        AddNode(t, CreateNode(keys, values));
     }
-    for (int i = 0; i < count; i++)
-    {
-        AddNode(t, CreateNode(arr[i].keys, arr[i].values));
-    }
-    delete[] arr;
-    cout << endl
-         << count << endl;
+
     fsKeys.close();
     fsValue.close();
-
     cout << " AVL TREE " << endl;
     cout << "1. SEARCH" << endl;
     cout << "2. ADD DATA" << endl;
@@ -833,13 +806,18 @@ void selectionTree(Tree t)
 }
 int main()
 {
-    int Select = -1;
-    while (Select < 5)
+    // /system("color 80");
+    srand(time(NULL));
+    int Select = 0;
+    fstream fs("oxford English Dictionary.txt", ios::in);
+    input(fs);
+    fs.close();
+    while (Select < 5 && Select >= 0)
     {
+        system("cls");
         fstream fsTime("Time.txt", ios::out | ios::app);
         fstream fsH("History.txt", ios::out | ios::app);
-        system("color 80");
-        fstream fs("oxford English Dictionary.txt", ios::in);
+
         cout << "LAB5_20127185_Nguyen Gia Huy" << endl;
         cout << "1. Run with array" << endl;
         cout << "2. Run with  Hash Table " << endl;
@@ -852,7 +830,6 @@ int main()
         {
             fsH << "Run with array" << endl;
             fsTime << "Run with array" << endl;
-            input(fs);
             selection();
             system("pause");
         }
@@ -861,7 +838,6 @@ int main()
             fsH << "Run with Hash Table" << endl;
             fsTime << "Run with Hash Table" << endl;
             cout << "Loading..." << endl;
-            input(fs);
             hashtable H;
             tableInitialization(H);
             loadFile(H);
@@ -872,14 +848,14 @@ int main()
         {
             Tree t;
             CreateTree(t);
-            cout << "Run" << endl;
+            cout << "Loading..." << endl;
             fstream fsInFile("oxford English Dictionary.txt", ios::in);
             input(fsInFile);
             fsInFile.close();
             selectionTree(t);
             system("pause");
         }
-        else if (Select == 3)
+        else if (Select == 4)
         {
             fstream History("History.txt", ios::in);
             while (!History.eof())
@@ -897,7 +873,6 @@ int main()
 
         fsTime.close();
         fsH.close();
-        fs.close();
     }
     return 0;
 }
